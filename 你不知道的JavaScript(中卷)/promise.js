@@ -18,3 +18,51 @@ function add(xPromise,yPromise) {
  } );
 
 //  注：这里add里，通过then方法return了一个promise，所以可以使用add().then
+
+
+
+// 注意： 一个promise决议以后，这个promise上所有通过then()注册的回调都会在下一个异步时机点上一次被立即调用。
+// 这些回调中的任意一个都无法影响或延误对其他回调的调用。参看下面例子：C无法打断或者抢占“B”。
+function foo () {
+  return new Promise((resolve) => {resolve(2)})
+}
+p.then(() => {
+  p.then(() => {
+    console.log('C')
+  })
+  console.log('A')
+})
+p.then(() => {
+  console.log('B')
+})
+// A
+// B
+// C
+
+var p3 = new Promise( function(resolve,reject){ 
+  resolve( "B" ); 
+ } ); 
+ var p1 = new Promise( function(resolve,reject){ 
+  resolve( p3 ); 
+ } ); 
+ p2 = new Promise( function(resolve,reject){ 
+  resolve( "A" ); 
+ } ); 
+ p1.then( function(v){ 
+  console.log( v ); 
+ } )
+ p2.then( function(v){ 
+  console.log( v ); 
+ } );
+
+//  promise.resolve 和 new promise参数里的resolve的区别
+var p3 = new Promise( function(resolve,reject){ 
+  resolve( "B" ); 
+ } ); 
+ var p1 = new Promise( function(resolve,reject){ 
+  resolve( p3 ); 
+ } ); 
+ var p2 = Promise.resolve(p3)
+
+ p2 === p3 // true
+ p1 === p3 // false
